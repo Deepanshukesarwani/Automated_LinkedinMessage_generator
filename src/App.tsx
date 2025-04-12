@@ -42,18 +42,24 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [profiles, setProfiles] = useState<ScrapedProfile[]>([]);
   const [error, setError] = useState('');
+  const [isCampaignsLoading, setIsCampaignsLoading] = useState(true);
+  const [email, setEmail] = useState('');
+const [password, setPassword] = useState('');
 
   useEffect(() => {
     fetchCampaigns();
   }, []);
 
   const fetchCampaigns = async () => {
+    setIsCampaignsLoading(true);
     try {
       const response = await fetch('https://automated-linkedinmessage-generator.onrender.com/api/campaigns');
       const data = await response.json();
       setCampaigns(data);
     } catch (error) {
       console.error('Failed to fetch campaigns:', error);
+    }finally {
+      setIsCampaignsLoading(false);
     }
   };
 
@@ -145,7 +151,7 @@ function App() {
       const response = await fetch('http://localhost:3000/api/profiles/scrape', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ searchUrl }),
+        body: JSON.stringify({ searchUrl, email, password }),
       });
       
       if (!response.ok) {
@@ -155,6 +161,8 @@ function App() {
       const data = await response.json();
       setProfiles(data);
       setSearchUrl('');
+      setEmail('');
+      setPassword('');
     } catch (error) {
       setError('Failed to scrape profiles. Please check the URL and try again.');
       console.error('Scraping error:', error);
@@ -164,14 +172,35 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <>
+   {isCampaignsLoading&& <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="flex flex-col items-center gap-2">
+        <Loader className="animate-spin text-blue-600" size={32} />
+        <p className="text-gray-600">Loading campaigns...</p>
+      </div>
+    </div>}
+    {!isCampaignsLoading&& <div className="min-h-screen bg-gray-100">
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 gap-8">
           {/* LinkedIn Profile Scraper Section */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-2xl font-bold mb-6">LinkedIn Profile Scraper</h2>
             <div className="space-y-4">
-              <div className="flex gap-4">
+              <div className="flex flex-wrap gap-4">
+              <input
+    type="email"
+    value={email}
+    onChange={(e) => setEmail(e.target.value)}
+    placeholder="LinkedIn Email"
+    className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+  />
+  <input
+    type="password"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+    placeholder="LinkedIn Password"
+    className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+  />
                 <input
                   type="text"
                   value={searchUrl}
@@ -416,7 +445,9 @@ function App() {
           </div>
         </div>
       )}
-    </div>
+    </div>}
+    </>
+   
   );
 }
 
