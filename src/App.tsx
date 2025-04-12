@@ -37,7 +37,7 @@ function App() {
 
   const fetchCampaigns = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/campaigns');
+      const response = await fetch('https://automated-linkedinmessage-generator.onrender.com/api/campaigns');
       const data = await response.json();
       setCampaigns(data);
     } catch (error) {
@@ -52,8 +52,8 @@ function App() {
     try {
       const isEditingCampaign = Boolean(selectedCampaign._id);
       const url = isEditingCampaign
-        ? `http://localhost:3000/api/campaigns/${selectedCampaign._id}`
-        : 'http://localhost:3000/api/campaigns';
+        ? `https://automated-linkedinmessage-generator.onrender.com/api/campaigns/${selectedCampaign._id}`
+        : 'https://automated-linkedinmessage-generator.onrender.com/api/campaigns';
   
       const method = isEditingCampaign ? 'PUT' : 'POST';
   
@@ -89,7 +89,7 @@ function App() {
 
   const handleDelete = async (id: string) => {
     try {
-      await fetch(`http://localhost:3000/api/campaigns/${id}`, {
+      await fetch(`https://automated-linkedinmessage-generator.onrender.com/api/campaigns/${id}`, {
         method: 'DELETE',
       });
       fetchCampaigns();
@@ -101,7 +101,7 @@ function App() {
   const handleStatusToggle = async (campaign: Campaign) => {
     try {
       const newStatus = campaign.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
-      await fetch(`http://localhost:3000/api/campaigns/${campaign._id}`, {
+      await fetch(`https://automated-linkedinmessage-generator.onrender.com/api/campaigns/${campaign._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...campaign, status: newStatus }),
@@ -114,7 +114,7 @@ function App() {
 
   const generateMessage = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/personalized-message', {
+      const response = await fetch('https://automated-linkedinmessage-generator.onrender.com/api/personalized-message', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(profile),
