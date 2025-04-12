@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PlusCircle, Trash2, Edit, Power, PowerOff } from 'lucide-react';
+import { PlusCircle, Trash2, Edit, Power, PowerOff, Search, Loader } from 'lucide-react';
 
 interface Campaign {
   _id: string;
@@ -18,6 +18,14 @@ interface LinkedInProfile {
   summary: string;
 }
 
+interface ScrapedProfile {
+  fullName: string;
+  jobTitle: string;
+  company: string;
+  location: string;
+  profileUrl: string;
+}
+
 function App() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
@@ -30,6 +38,10 @@ function App() {
     summary: ''
   });
   const [generatedMessage, setGeneratedMessage] = useState('');
+  const [searchUrl, setSearchUrl] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [profiles, setProfiles] = useState<ScrapedProfile[]>([]);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     fetchCampaigns();
@@ -126,10 +138,87 @@ function App() {
     }
   };
 
+  const handleScrape = async () => {
+    setIsLoading(true);
+    setError('');
+    try {
+      const response = await fetch('http://localhost:3000/api/profiles/scrape', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ searchUrl }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to scrape profiles');
+      }
+      
+      const data = await response.json();
+      setProfiles(data);
+      setSearchUrl('');
+    } catch (error) {
+      setError('Failed to scrape profiles. Please check the URL and try again.');
+      console.error('Scraping error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 gap-8">
+          {/* LinkedIn Profile Scraper Section */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-2xl font-bold mb-6">LinkedIn Profile Scraper</h2>
+            <div className="space-y-4">
+              <div className="flex gap-4">
+                <input
+                  type="text"
+                  value={searchUrl}
+                  onChange={(e) => setSearchUrl(e.target.value)}
+                  placeholder="Enter LinkedIn search URL"
+                  className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+                <button
+                  onClick={handleScrape}
+                  disabled={isLoading}
+                  className="flex items-center gap-2 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {isLoading ? <Loader className="animate-spin" size={20} /> : <Search size={20} />}
+                  {isLoading ? 'Scraping...' : 'Scrape Profiles'}
+                </button>
+              </div>
+              
+              {error && (
+                <div className="p-4 bg-red-50 text-red-700 rounded-lg">
+                  {error}
+                </div>
+              )}
+
+              <div className="mt-6">
+                <h3 className="text-lg font-semibold mb-4">Scraped Profiles ({profiles.length})</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {profiles.map((profile) => (
+                    <div key={profile.profileUrl} className="border rounded-lg p-4">
+                      <h4 className="font-semibold">{profile.fullName}</h4>
+                      <p className="text-gray-600">{profile.jobTitle}</p>
+                      <p className="text-gray-600">{profile.company}</p>
+                      <p className="text-gray-600">{profile.location}</p>
+                      <a
+                        href={profile.profileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline text-sm mt-2 block"
+                      >
+                        View Profile
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Campaign Management Section */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="flex justify-between items-center mb-6">
@@ -153,7 +242,7 @@ function App() {
               </button>
             </div>
 
-            <div className="space-y-4 " >
+            <div className="space-y-4">
               {campaigns.map((campaign) => (
                 <div key={campaign._id} className="border rounded-lg p-4">
                   <div className="flex justify-between items-center">
