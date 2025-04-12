@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import { campaignRouter } from './routes/campaign';
 import { messageRouter } from './routes/message';
+import { profileRouter } from './routes/profile';
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ app.use(express.json());
 // Routes
 app.use('/api/campaigns', campaignRouter);
 app.use('/api/personalized-message', messageRouter);
+app.use('/api/profiles', profileRouter);
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/campaign-manager')
