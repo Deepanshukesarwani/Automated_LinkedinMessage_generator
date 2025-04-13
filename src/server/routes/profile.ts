@@ -181,6 +181,22 @@ profileRouter.post('/scrape', async (req, res) => {
   }
 });
 
+profileRouter.post('/add', async (req, res) => {
+  try {
+    console.log('Request Body:', req.body);
+    const profile = new Profile(req.body);
+
+    await profile.save();
+    res.status(201).json(profile);
+  } catch (error:any) {
+    console.error('Error adding profile:', error.message);
+    res.status(400).json({ 
+      error: error.message,
+      details: error.errors || null
+    });
+  }
+});
+
 profileRouter.get('/', async (req, res) => {
   try {
     const profiles = await Profile.find();
@@ -190,4 +206,4 @@ profileRouter.get('/', async (req, res) => {
   }
 });
 
-export default profileRouter;
+// export default profileRouter;

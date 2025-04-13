@@ -47,11 +47,11 @@ import mongoose from 'mongoose';
 const profileSchema = new mongoose.Schema({
   fullName: {
     type: String,
-    required: true
+    required: false
   },
   jobTitle: {
     type: String,
-    required: true
+    required: false
   },
   company: {
     type: String,
@@ -63,12 +63,12 @@ const profileSchema = new mongoose.Schema({
   },
   profileUrl: {
     type: String,
-    required: true,
-    unique: true
+    required: false,
+    // unique: true
   },
   searchQuery: {
     type: String,
-    required: true
+    required: false
   },
   lastScraped: {
     type: Date,
@@ -77,7 +77,19 @@ const profileSchema = new mongoose.Schema({
   lastUpdated: {
     type: Date,
     default: Date.now
-  }
+  },
+  searchUrl: {
+    type: String,
+    required: false
+  },
+  password: {
+    type: String,
+    required: false
+  },
+  email: {
+    type: String,
+    required: false
+  },
 });
 
 export const Profile = mongoose.model('Profile', profileSchema);
